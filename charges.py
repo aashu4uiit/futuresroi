@@ -3,7 +3,11 @@ import pandas as pd
 import openpyxl
 
 def extract_charges(df):
-    # Try to locate the row where "Charges" is present in any column
+    # Diagnostic: Display the entire DataFrame to understand its structure
+    st.write("Full DataFrame:")
+    st.write(df)
+    
+    # Attempt to locate the row where "Charges" is located
     charges_row = df[df.isin(['Charges']).any(axis=1)]
     
     # Check if the row was found and extract the value
@@ -15,7 +19,7 @@ def extract_charges(df):
         charges_value = charges_row.iloc[0, 2]  # Adjust if the charges value is in a different column
         return charges_value
     else:
-        st.error("Charges row not found.")
+        st.error("Charges row not found. Verify that 'Charges' is spelled correctly and present in the data.")
         return None
 
 def main():
