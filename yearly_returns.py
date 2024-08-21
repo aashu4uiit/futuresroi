@@ -42,10 +42,10 @@ def summarize_returns(df):
     # Calculate returns by Financial Year
     financial_year_returns = calculate_returns_by_year(df, 'Financial')
     
-    # Merge the results into one table
+    # Merge the results into one table, including the months used
     summary_table = pd.merge(calendar_year_returns, financial_year_returns, on='Year', how='outer')
 
-    # Reorder columns to have a clear structure
+    # Ensure that the months used are displayed properly
     summary_table = summary_table[['Year', 'Calendar Yearly Return (%)', 'Calendar Months Used', 'Financial Yearly Return (%)', 'Financial Months Used']]
 
     # Display the table
