@@ -14,19 +14,26 @@ def extract_month(symbol):
     month_code = symbol[7:10]
     return month_mapping.get(month_code.upper(), 'Unknown')
 
+def format_month_year(month, year):
+    month_abbr = month[:3].upper()
+    year_abbr = year[-2:]
+    return f"{month_abbr}-{year_abbr}"
+
 def calculate_returns_by_year(df, year_type='Calendar'):
-    if year_type == 'Calendar':
-        df['Year'] = df['Symbol'].apply(extract_year)
-        df['Month'] = df['Symbol'].apply(extract_month)
-    elif year_type == 'Financial':
-        df['Year'] = df['Symbol'].apply(extract_year)
-        df['Month'] = df['Symbol'].apply(extract_month)
-        df['Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year'], axis=1)
+    df['Month'] = df['Symbol'].apply(extract_month)
+    df['Year'] = df['Symbol'].apply(extract_year)
+    
+    if year_type == 'Financial':
+        df['Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in [
+            'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year'], axis=1)
+
+    # Format Month-Year
+    df['Month-Year'] = df.apply(lambda x: format_month_year(x['Month'], x['Year']), axis=1)
 
     # Aggregate returns by Year and collect months used
     yearly_data = df.groupby('Year').agg({
         'Realized P&L Pct.': 'mean',
-        'Month': lambda x: ', '.join(sorted(x.unique()))
+        'Month-Year': lambda x: ', '.join(sorted(x.unique()))
     }).reset_index()
 
     yearly_data.columns = ['Year', f'{year_type} Yearly Return (%)', f'{year_type} Months Used']
