@@ -7,15 +7,15 @@ def extract_charges(uploaded_file):
     df_full = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
 
     # Diagnostic: Display the relevant section of the DataFrame
-      st.write("Relevant DataFrame section:")
-      st.write(df_full.head(20))  # Display the first 20 rows for verification
+    st.write("Relevant DataFrame section:")
+    st.write(df_full.head(20))  # Display the first 20 rows for verification
     
     # Attempt to locate the row where "Charges" is located
     charges_row = df_full[df_full.isin(['Charges']).any(axis=1)]
     
     # Check if the row was found and extract the value
     if not charges_row.empty:
-        Log the entire row for verification
+       # Log the entire row for verification
        st.write("Charges row found:", charges_row)
         
         # Assuming the value is in the third column
