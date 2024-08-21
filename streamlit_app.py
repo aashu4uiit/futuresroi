@@ -56,7 +56,7 @@ def main():
     if uploaded_file is not None:
         try:
             # Read the uploaded Excel file, skip the first 36 rows, and correctly interpret the header
-            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
+            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=0)
             
             # Rename columns using the first row as headers
             df.columns = df.iloc[0]  # Set the first row as the header
