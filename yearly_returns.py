@@ -25,11 +25,10 @@ def calculate_financial_year_returns(df):
     
     # Adjust the year for the financial year grouping
     df['FY_Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in [
-        'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year'], axis=1)
+        'January', 'February', 'March'] else x['Year'], axis=1)
 
-    # Ensure that each financial year captures all months from April to March
-    df['Month-Year'] = df.apply(lambda x: format_month_year(x['Month'], x['FY_Year'] if x['Month'] in [
-        'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year']), axis=1)
+    # Format Month-Year
+    df['Month-Year'] = df.apply(lambda x: format_month_year(x['Month'], x['FY_Year']), axis=1)
 
     # Aggregate returns by FY_Year and collect months used
     financial_year_data = df.groupby('FY_Year').agg({
