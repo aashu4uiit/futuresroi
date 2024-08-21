@@ -2,6 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def extract_month_year(symbol):
     month_mapping = {
         'JAN': 'January', 'FEB': 'February', 'MAR': 'March',
@@ -14,13 +15,16 @@ def extract_month_year(symbol):
     month = month_mapping.get(month_code.upper(), 'Unknown')
     return f"{month[:3]}-{year}"
 
+def geometric_mean(returns):
+    # Convert percentage returns to decimal form
+    returns = returns / 100 + 1
+    # Calculate geometric mean
+    gmr = np.prod(returns) ** (1 / len(returns)) - 1
+    # Convert back to percentage form
+    return gmr * 100
+
 def plot_futures_monthly_returns(df):
     st.header("Futures Monthly Percentage Returns")
-    
-    # Calculate geometric mean return
-    monthly_returns = df.groupby('Month-Year')['Realized P&L Pct.'].mean()
-    monthly_returns = monthly_returns[monthly_returns != 0]  # Filter out 0 values
-    gmean_return = np.prod(monthly_returns + 1) ** (1 / len(monthly_returns)) - 1
     
     # Filter the DataFrame to include only Futures transactions (Symbol ends with 'FUT')
     df = df[df['Symbol'].str.endswith('FUT')]
@@ -52,21 +56,22 @@ def plot_futures_monthly_returns(df):
     # Reindex the DataFrame to ensure the correct order of Month-Year
     monthly_returns = monthly_returns.reindex(ordered_month_year).dropna()
 
-    # Calculate the overall return
+    # Calculate the overall return (arithmetic mean)
     overall_return = monthly_returns.mean()
 
-    # Add the overall return as a new entry
-    monthly_returns['Overall'] = overall_return
+    # Calculate the Geometric Mean Return (GMR)
+    gmr_return = geometric_mean(monthly_returns)
 
-     # Add geometric mean return as a new entry
-    monthly_returns['Overall (Geometric Mean)'] = gmean_return * 100  # Convert to percentage
+    # Add the overall return and GMR as new entries
+    monthly_returns['Overall'] = overall_return
+    monthly_returns['GMR'] = gmr_return
 
     # Plot the bar chart
     plt.figure(figsize=(12, 6))
     bars = plt.bar(monthly_returns.index, monthly_returns.values, color='skyblue')
     plt.xlabel('Month-Year')
     plt.ylabel('Average Realized P&L Pct. (%)')
-    plt.title('Futures Average Monthly Realized P&L Percentage with Overall Return')
+    plt.title('Futures Average Monthly Realized P&L Percentage with Overall Return and GMR')
     plt.xticks(rotation=45)
     
     # Add the return numbers on top of the bars
