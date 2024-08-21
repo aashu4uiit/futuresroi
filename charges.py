@@ -4,7 +4,7 @@ import openpyxl
 
 def extract_charges(df):
     # Identify the row where "Charges" is located
-    charges_row = df[df[1] == 'Charges']
+    charges_row = df[df.iloc[:, 1] == 'Charges']  # Checking the second column
     
     # Extract the value associated with "Charges"
     if not charges_row.empty:
