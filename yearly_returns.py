@@ -4,18 +4,34 @@ import streamlit as st
 def extract_year(symbol):
     return '20' + symbol[5:7]  # Extract the year from the Symbol (e.g., '23' -> '2023')
 
+def extract_month(symbol):
+    month_mapping = {
+        'JAN': 'January', 'FEB': 'February', 'MAR': 'March',
+        'APR': 'April', 'MAY': 'May', 'JUN': 'June',
+        'JUL': 'July', 'AUG': 'August', 'SEP': 'September',
+        'OCT': 'October', 'NOV': 'November', 'DEC': 'December'
+    }
+    month_code = symbol[7:10]
+    return month_mapping.get(month_code.upper(), 'Unknown')
+
 def calculate_returns_by_year(df, year_type='Calendar'):
     if year_type == 'Calendar':
         df['Year'] = df['Symbol'].apply(extract_year)
+        df['Month'] = df['Symbol'].apply(extract_month)
     elif year_type == 'Financial':
         df['Year'] = df['Symbol'].apply(extract_year)
-        df['Month'] = df['Symbol'].str[7:10]
-        df['Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in ['APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'] else x['Year'], axis=1)
+        df['Month'] = df['Symbol'].apply(extract_month)
+        df['Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year'], axis=1)
 
-    yearly_returns = df.groupby('Year')['Realized P&L Pct.'].mean().reset_index()
-    yearly_returns.columns = ['Year', f'{year_type} Yearly Return (%)']
+    # Aggregate returns by Year and collect months used
+    yearly_data = df.groupby('Year').agg({
+        'Realized P&L Pct.': 'mean',
+        'Month': lambda x: ', '.join(sorted(x.unique()))
+    }).reset_index()
+
+    yearly_data.columns = ['Year', f'{year_type} Yearly Return (%)', 'Months Used']
     
-    return yearly_returns
+    return yearly_data
 
 def summarize_returns(df):
     st.title("Yearly Returns Summary")
@@ -27,7 +43,7 @@ def summarize_returns(df):
     financial_year_returns = calculate_returns_by_year(df, 'Financial')
     
     # Merge the results into one table
-    summary_table = pd.merge(calendar_year_returns, financial_year_returns, on='Year', how='outer')
+    summary_table = pd.merge(calendar_year_returns, financial_year_returns, on=['Year', 'Months Used'], how='outer')
 
     # Display the table
     st.write(summary_table)
