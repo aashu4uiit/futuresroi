@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import openpyxl
-import matplotlib.pyplot as plt
+from monthly_returns import plot_monthly_returns  # Import the function from the new file
 
 def extract_month(symbol):
     month_mapping = {
@@ -17,7 +17,8 @@ def main():
     st.title("ROI Calculator & File Uploader")
     st.write("This app allows you to upload an Excel file to view and analyze percentage returns.")
 
-    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
+    # File uploader for the main data
+    uploaded_file = st.file_uploader("Choose an Excel file for main data", type=["xlsx", "xls"])
 
     if uploaded_file is not None:
         try:
@@ -42,25 +43,8 @@ def main():
             # Display the dataframe
             st.write(df)
 
-            # Convert the 'Realized P&L Pct.' column to numeric
-            df['Realized P&L Pct.'] = pd.to_numeric(df['Realized P&L Pct.'], errors='coerce')
-
-            # Plot the percentage returns as a bar chart with the actual return number on the bars
-            st.header("Percentage Returns")
-            plt.figure(figsize=(10, 6))
-            bars = plt.bar(df['Symbol'], df['Realized P&L Pct.'], color='skyblue')
-            plt.xlabel('Symbol')
-            plt.ylabel('Realized P&L Pct. (%)')
-            plt.title('Realized P&L Percentage by Symbol')
-            plt.xticks(rotation=90)
-            
-            # Add the return numbers on top of the bars
-            for bar in bars:
-                yval = bar.get_height()
-                plt.text(bar.get_x() + bar.get_width()/2, yval, f'{yval:.2f}%', ha='center', va='bottom')
-
-            # Display the plot in Streamlit
-            st.pyplot(plt)
+            # Call the function to plot monthly returns
+            plot_monthly_returns(df)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
