@@ -3,6 +3,7 @@ import streamlit as st
 import numpy as np
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
+from charges import extract_charges  # Import the extract_charges function
 
 def geometric_mean(returns):
     # Convert percentage returns to decimal form
@@ -12,7 +13,7 @@ def geometric_mean(returns):
     # Convert back to percentage form
     return gmr * 100
 
-def calculate_total_returns(futures_df, options_df):
+def calculate_total_returns(futures_df, options_df, charges_value):
     # Calculate geometric mean for futures
     futures_gmr = geometric_mean(futures_df['Realized P&L Pct.'])
 
@@ -23,19 +24,22 @@ def calculate_total_returns(futures_df, options_df):
     combined_returns = pd.concat([futures_df['Realized P&L Pct.'], options_df['Realized P&L Pct.']])
     total_geometric_mean = geometric_mean(combined_returns)
 
+    # Calculate net returns after subtracting charges (assuming charges are applied proportionally)
+    net_total_geometric_mean = total_geometric_mean - (charges_value / combined_returns.sum() * 100)
+
     # Create a summary DataFrame
     summary_df = pd.DataFrame({
-        'Category': ['Futures', 'Options', 'Total'],
-        'Geometric Mean (%)': [futures_gmr, options_gmr, total_geometric_mean]
+        'Category': ['Futures', 'Options', 'Total', 'Net Total (after Charges)'],
+        'Geometric Mean (%)': [futures_gmr, options_gmr, total_geometric_mean, net_total_geometric_mean]
     })
     
     return summary_df
 
-def summarize_total_returns(futures_df, options_df):
+def summarize_total_returns(futures_df, options_df, charges_value):
     st.title("Total Returns Summary")
 
     # Calculate and display the total returns (geometric mean only)
-    total_returns_df = calculate_total_returns(futures_df, options_df)
+    total_returns_df = calculate_total_returns(futures_df, options_df, charges_value)
     st.write(total_returns_df)
     
     # Plot individual and combined returns
@@ -50,6 +54,11 @@ def main():
 
     if uploaded_file is not None:
         try:
+            # Extract and display charges using the uploaded file
+            charges_value = extract_charges(uploaded_file)
+            if charges_value is not None:
+                st.write(f"Charges: {charges_value}")
+
             # Read the uploaded Excel file
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
             
@@ -69,8 +78,8 @@ def main():
             # Plot options monthly returns
             plot_options_monthly_returns(options_df)
             
-            # Summarize total returns (geometric mean only)
-            summarize_total_returns(futures_df, options_df)
+            # Summarize total returns (geometric mean only), including net returns after charges
+            summarize_total_returns(futures_df, options_df, charges_value)
         
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
