@@ -81,9 +81,12 @@ def main():
             # Plot options monthly returns
             plot_options_monthly_returns(options_df)
             
-            # Summarize total returns (geometric mean only), including net returns after charges
-            summarize_total_returns(futures_df, options_df, charges_value)
-        
+            # Check if charges_value is None or not before calling the summarize function
+            if charges_value is not None:
+                summarize_total_returns(futures_df, options_df, charges_value)
+            else:
+                st.error("Charges value is missing. Please check the data.")
+
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
 
