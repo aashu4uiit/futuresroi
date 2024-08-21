@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
 import openpyxl
-
-def calculate_roi(beginning_value, ending_value):
-    return ((ending_value - beginning_value) / beginning_value) * 100
+import matplotlib.pyplot as plt
 
 def extract_month(symbol):
     month_mapping = {
@@ -17,7 +15,7 @@ def extract_month(symbol):
 
 def main():
     st.title("ROI Calculator & File Uploader")
-    st.write("This app allows you to upload an Excel file or manually input values to calculate ROI.")
+    st.write("This app allows you to upload an Excel file to view and analyze percentage returns.")
 
     uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
 
@@ -43,21 +41,8 @@ def main():
             
             # Display the dataframe
             st.write(df)
-        except Exception as e:
-            st.error(f"An error occurred while processing the file: {e}")
 
-    st.write("---")
+            # Convert the 'Realized P&L Pct.' column to numeric
+            df['Realized P&L Pct.'] = pd.to_numeric(df['Realized P&L Pct.'], errors='coerce')
 
-    st.header("Manual ROI Calculation")
-    beginning_value = st.number_input("Enter the Beginning Value (Buy Value):", min_value=0.0, format="%.2f")
-    ending_value = st.number_input("Enter the Ending Value (Sell Value):", min_value=0.0, format="%.2f")
-
-    if st.button("Calculate ROI"):
-        if beginning_value > 0:
-            roi = calculate_roi(beginning_value, ending_value)
-            st.success(f"The ROI is {roi:.2f}%")
-        else:
-            st.error("Beginning Value must be greater than 0 to calculate ROI.")
-
-if __name__ == "__main__":
-    main()
+            # Plot
