@@ -28,15 +28,17 @@ def calculate_financial_year_returns(df):
     df['Year'] = df['Symbol'].apply(extract_year)
     
     # Adjust the year for the financial year grouping
-    df['FY_Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in [
-        'January', 'February', 'March'] else x['Year'], axis=1)
-
-    # Ensure only months April to March are included for each financial year
-    df = df[df.apply(lambda x: (x['Month'] in ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] and x['FY_Year'] == x['Year']) or
-                     (x['Month'] in ['January', 'February', 'March'] and str(int(x['FY_Year']) + 1) == x['Year']), axis=1)]
+    df['FY_Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in ['January', 'February', 'March'] else x['Year'], axis=1)
 
     # Format Month-Year
     df['Month-Year'] = df.apply(lambda x: format_month_year(x['Month'], x['FY_Year']), axis=1)
+
+    # Ensure only months April to March are included for each financial year
+    df['Valid_FY'] = df.apply(lambda x: (x['Month'] in ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] and x['Year'] == x['FY_Year']) or
+                                         (x['Month'] in ['January', 'February', 'March'] and x['Year'] == str(int(x['FY_Year']) + 1)), axis=1)
+
+    # Filter out rows that do not belong to the correct financial year
+    df = df[df['Valid_FY']]
 
     # Aggregate returns by FY_Year and collect months used
     financial_year_data = df.groupby('FY_Year').agg({
