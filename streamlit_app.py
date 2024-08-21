@@ -45,4 +45,18 @@ def main():
             # Convert the 'Realized P&L Pct.' column to numeric
             df['Realized P&L Pct.'] = pd.to_numeric(df['Realized P&L Pct.'], errors='coerce')
 
-            # Plot
+            # Plot the percentage returns as a bar chart
+            st.header("Percentage Returns")
+            plt.figure(figsize=(10, 6))
+            plt.bar(df['Symbol'], df['Realized P&L Pct.'], color='skyblue')
+            plt.xlabel('Symbol')
+            plt.ylabel('Realized P&L Pct. (%)')
+            plt.title('Realized P&L Percentage by Symbol')
+            plt.xticks(rotation=90)
+            st.pyplot(plt)
+
+        except Exception as e:
+            st.error(f"An error occurred while processing the file: {e}")
+
+if __name__ == "__main__":
+    main()
