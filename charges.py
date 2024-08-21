@@ -15,8 +15,8 @@ def extract_charges(uploaded_file):
     
     # Check if the row was found and extract the value
     if not charges_row.empty:
-       # Log the entire row for verification
-       st.write("Charges row found:", charges_row)
+        # Log the entire row for verification
+        st.write("Charges row found:", charges_row)
         
         # Assuming the value is in the third column
         charges_value = charges_row.iloc[0, 2]  # Adjust if the charges value is in a different column
