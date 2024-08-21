@@ -42,31 +42,8 @@ def summarize_returns(df):
     # Merge the results into one table
     summary_table = pd.merge(calendar_year_returns, financial_year_returns, on='Year', how='outer')
 
-    # Display the summary table
+    # Display the table
     st.write(summary_table)
-
-def extract_and_display_charges(df):
-    st.title("Charges Summary")
-    
-    try:
-        # Ensure there is a second column to check for "Charges"
-        if df.shape[1] > 1:
-            # Identify the row where "Charges" is located
-            charges_row = df[df.iloc[:, 1] == 'Charges']  # Checking the second column
-
-            # Extract the value associated with "Charges"
-            if not charges_row.empty:
-                charges_value = charges_row.iloc[0, 2]  # Assuming the value is in the third column
-                charges_table = pd.DataFrame({'Charges': [charges_value]})
-                st.write("Charges Table:")
-                st.write(charges_table)
-            else:
-                st.error("Charges row not found.")
-        else:
-            st.error("The DataFrame does not contain enough columns to check for 'Charges'.")
-    
-    except Exception as e:
-        st.error(f"An error occurred while processing the charges: {e}")
 
 def main():
     st.title("ROI Calculator & File Uploader")
@@ -106,9 +83,6 @@ def main():
             
             # Summarize returns by Calendar and Financial Years
             summarize_returns(df)
-            
-            # Extract and display charges separately
-            extract_and_display_charges(df)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
