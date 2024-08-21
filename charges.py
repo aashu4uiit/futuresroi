@@ -2,9 +2,8 @@ import streamlit as st
 import pandas as pd
 import openpyxl
 
-def extract_charges(df):
-    # Since the main script skips 36 rows, we need to adjust for this.
-    # Reload the data, skipping fewer rows to include the Charges row.
+def extract_charges(uploaded_file):
+    # Load the data, ensuring the Charges row is included
     df_full = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
 
     # Diagnostic: Display the relevant section of the DataFrame
@@ -35,15 +34,13 @@ def main():
 
     if uploaded_file is not None:
         try:
-            # Read the uploaded Excel file, skip the first 13 rows
-            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
-            
             # Display the raw data for verification
             st.write("Data preview:")
+            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
             st.write(df.head(20))  # Display the first 20 rows to inspect
             
             # Extract and display the charges
-            charges_value = extract_charges(df)
+            charges_value = extract_charges(uploaded_file)
             if charges_value is not None:
                 # Log the extracted charges value
                 st.write(f"Extracted Charges value: {charges_value}")
