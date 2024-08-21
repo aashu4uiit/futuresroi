@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
 import openpyxl
+import pygwalker as pyg
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
 from charges import extract_charges  # Import the extract_charges function
-from total_returns import calculate_total_returns  # Import the calculate_total_returns function
+from total_returns import summarize_total_returns  # Import the summarize_total_returns function
 
 def extract_month(symbol):
     month_mapping = {
@@ -17,65 +18,84 @@ def extract_month(symbol):
     return month_mapping.get(month_code.upper(), 'Unknown')
 
 def main():
-    st.title("ROI Calculator & File Uploader")
-    st.write("This app allows you to upload a single Excel file to view and analyze percentage returns for futures, options, and combined totals.")
+    st.title("ROI Calculator & Data Explorer")
 
-    # File uploader for the data
-    uploaded_file = st.file_uploader("Choose an Excel file for the data", type=["xlsx", "xls"])
+    # Create tabs
+    tab1, tab2, tab3 = st.tabs(["ROI Analysis", "Data Visualization", "Pygwalker Data Exploration"])
 
-    if uploaded_file is not None:
-        try:
-            # Extract and display charges using the uploaded file
-            charges_value = extract_charges(uploaded_file)
-            if charges_value is not None:
-                charges_table = pd.DataFrame({'Charges': [charges_value]})
-                st.write("Charges Table:")
-                st.write(charges_table)
-            else:
-                st.error("Charges value could not be found or is invalid.")
-                return
+    with tab1:
+        st.write("This tab allows you to upload a single Excel file to view and analyze percentage returns for futures, options, and combined totals.")
+        
+        # File uploader for the data
+        uploaded_file = st.file_uploader("Choose an Excel file for the data", type=["xlsx", "xls"])
 
-            # Read the uploaded Excel file, skip the first 36 rows, and correctly interpret the header
-            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
-            
-            # Rename columns using the first row as headers
-            df.columns = df.iloc[0]  # Set the first row as the header
-            df = df[1:]  # Remove the first row from the dataframe
-            
-            # Rename the columns to standardize naming
-            df.columns = df.columns.str.strip()
-            df.columns.name = None
-            
-            # Add the "Month" column based on the "Symbol" column
-            df['Month'] = df['Symbol'].apply(extract_month)
-            
-            # Reorder columns to place "Month" before "Symbol"
-            columns = ['Month'] + [col for col in df.columns if col != 'Month']
-            df = df[columns]
+        if uploaded_file is not None:
+            try:
+                # Extract and display charges using the uploaded file
+                charges_value = extract_charges(uploaded_file)
+                if charges_value is not None:
+                    charges_table = pd.DataFrame({'Charges': [charges_value]})
+                    st.write("Charges Table:")
+                    st.write(charges_table)
 
-            # Separate futures and options data
-            futures_df = df[df['Symbol'].str.endswith('FUT')]
-            options_df = df[df['Symbol'].str.endswith(('CE', 'PE'))]
-            
-            # Display the dataframes
-            st.write("Futures Data:")
-            st.write(futures_df)
-            st.write("Options Data:")
-            st.write(options_df)
+                # Read the uploaded Excel file, skip the first 36 rows, and correctly interpret the header
+                df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
+                
+                # Rename columns using the first row as headers
+                df.columns = df.iloc[0]  # Set the first row as the header
+                df = df[1:]  # Remove the first row from the dataframe
+                
+                # Rename the columns to standardize naming
+                df.columns = df.columns.str.strip()
+                df.columns.name = None
+                
+                # Add the "Month" column based on the "Symbol" column
+                df['Month'] = df['Symbol'].apply(extract_month)
+                
+                # Reorder columns to place "Month" before "Symbol"
+                columns = ['Month'] + [col for col in df.columns if col != 'Month']
+                df = df[columns]
 
-            # Plot Futures Monthly Returns
-            plot_futures_monthly_returns(futures_df)
-            
-            # Plot Options Monthly Returns
-            plot_options_monthly_returns(options_df)
-            
-            # Calculate and summarize total returns
-            total_returns_df = calculate_total_returns(df, charges_value)
-            st.write("Total Returns Summary:")
-            st.write(total_returns_df)
+                # Separate futures and options data
+                futures_df = df[df['Symbol'].str.endswith('FUT')]
+                options_df = df[df['Symbol'].str.endswith(('CE', 'PE'))]
+                
+                # Display the dataframes
+                st.write("Futures Data:")
+                st.write(futures_df)
+                st.write("Options Data:")
+                st.write(options_df)
 
-        except Exception as e:
-            st.error(f"An error occurred while processing the file: {e}")
+                # Plot Futures Monthly Returns
+                plot_futures_monthly_returns(futures_df)
+                
+                # Plot Options Monthly Returns
+                plot_options_monthly_returns(options_df)
+                
+                # Summarize total returns
+                summarize_total_returns(futures_df, options_df, charges_value)
+
+            except Exception as e:
+                st.error(f"An error occurred while processing the file: {e}")
+
+    with tab2:
+        st.write("This tab will be used for data visualizations.")  
+        # Additional data visualizations can be added here
+
+    with tab3:
+        st.write("This tab provides interactive data exploration using Pygwalker.")
+        
+        # Ensure the data is uploaded
+        if uploaded_file is not None:
+            try:
+                # Reuse the DataFrame already read in tab1
+                # Display the data with Pygwalker
+                pyg.walk(df)  # Interactive data exploration
+
+            except Exception as e:
+                st.error(f"An error occurred while processing the file for Pygwalker: {e}")
+        else:
+            st.write("Please upload a file to explore the data.")
 
 if __name__ == "__main__":
     main()
