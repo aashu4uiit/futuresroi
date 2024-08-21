@@ -1,5 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
 
 def extract_month_year(symbol):
     month_mapping = {
@@ -46,12 +47,22 @@ def plot_options_monthly_returns(df):
     # Reindex the DataFrame to ensure the correct order of Month-Year
     monthly_returns = monthly_returns.reindex(ordered_month_year).dropna()
 
+    # Calculate the overall return as the arithmetic mean
+    overall_return = monthly_returns.mean()
+
+    # Calculate the geometric mean return
+    geometric_mean_return = (np.prod(1 + monthly_returns / 100) ** (1 / len(monthly_returns)) - 1) * 100
+
+    # Add the overall return and geometric mean return as new entries
+    monthly_returns['Overall'] = overall_return
+    monthly_returns['Geometric Mean'] = geometric_mean_return
+
     # Plot the bar chart
     plt.figure(figsize=(12, 6))
-    bars = plt.bar(monthly_returns.index, monthly_returns.values, color='orange')
+    bars = plt.bar(monthly_returns.index, monthly_returns.values, color='skyblue')
     plt.xlabel('Month-Year')
     plt.ylabel('Average Realized P&L Pct. (%)')
-    plt.title('Options Average Monthly Realized P&L Percentage')
+    plt.title('Options Average Monthly Realized P&L Percentage with Overall and Geometric Mean Returns')
     plt.xticks(rotation=45)
     
     # Add the return numbers on top of the bars
@@ -61,3 +72,4 @@ def plot_options_monthly_returns(df):
 
     # Display the plot in Streamlit
     st.pyplot(plt)
+
