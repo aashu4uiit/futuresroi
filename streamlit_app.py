@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import openpyxl
-from monthly_returns import plot_monthly_returns  # Import the function from the new file
+from futures_monthly_returns import plot_futures_monthly_returns
+from options_monthly_returns import plot_options_monthly_returns
 
 def extract_month(symbol):
     month_mapping = {
@@ -43,8 +44,11 @@ def main():
             # Display the dataframe
             st.write(df)
 
-            # Call the function to plot monthly returns
-            plot_monthly_returns(df)
+            # Plot Futures Monthly Returns
+            plot_futures_monthly_returns(df)
+            
+            # Plot Options Monthly Returns
+            plot_options_monthly_returns(df)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
