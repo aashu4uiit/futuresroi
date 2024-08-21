@@ -43,12 +43,16 @@ def summarize_returns(df):
     summary_table = pd.merge(calendar_year_returns, financial_year_returns, on='Year', how='outer')
 
     # Adding Charges to Table
-    # Extract the charges value from row 15 (index 14)
-    charges_value = df.iloc[14]['Charges']  # Ensure 'Charges' is the correct column name
-    charges_row = pd.DataFrame({'Year': ['Charges'], f'{year_type} Yearly Return (%)': [charges_value], f'Financial Yearly Return (%)': [charges_value]})
+    try:
+        # Attempt to extract the charges value from row 15 (index 14) and the correct column name
+        charges_value = df.iloc[14].dropna().values[0]  # Assuming the first non-null value in the row is the charge
+        charges_row = pd.DataFrame({'Year': ['Charges'], 'Calendar Yearly Return (%)': [charges_value], 'Financial Yearly Return (%)': [charges_value]})
+        
+        # Append the charges row to the summary table
+        summary_table = summary_table.append(charges_row, ignore_index=True)
     
-    # Append the charges row to the summary table
-    summary_table = summary_table.append(charges_row, ignore_index=True)
+    except IndexError:
+        st.error("Charges row or value could not be found.")
     
     # Display the table
     st.write(summary_table)
