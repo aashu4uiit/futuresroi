@@ -55,6 +55,13 @@ def main():
 
     if uploaded_file is not None:
         try:
+            # Extract and display charges using the uploaded file
+            charges_value = extract_charges(uploaded_file)
+            if charges_value is not None:
+                charges_table = pd.DataFrame({'Charges': [charges_value]})
+                st.write("Charges Table:")
+                st.write(charges_table)
+
             # Read the uploaded Excel file, skip the first 36 rows, and correctly interpret the header
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
             
@@ -84,13 +91,6 @@ def main():
             
             # Summarize returns by Calendar and Financial Years
             summarize_returns(df)
-
-            # Extract and display charges separately
-            charges_value = extract_charges(df)
-            if charges_value is not None:
-                charges_table = pd.DataFrame({'Charges': [charges_value]})
-                st.write("Charges Table:")
-                st.write(charges_table)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
