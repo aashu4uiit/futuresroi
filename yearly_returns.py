@@ -19,47 +19,38 @@ def format_month_year(month, year):
     year_abbr = year[-2:]
     return f"{month_abbr}-{year_abbr}"
 
-def calculate_returns_by_year(df, year_type='Calendar'):
+def calculate_financial_year_returns(df):
     df['Month'] = df['Symbol'].apply(extract_month)
     df['Year'] = df['Symbol'].apply(extract_year)
     
-    if year_type == 'Financial':
-        df['Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in [
-            'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year'], axis=1)
+    # Adjust the year for the financial year grouping
+    df['FY_Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in [
+        'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] else x['Year'], axis=1)
 
     # Format Month-Year
     df['Month-Year'] = df.apply(lambda x: format_month_year(x['Month'], x['Year']), axis=1)
 
-    # Aggregate returns by Year and collect months used
-    yearly_data = df.groupby('Year').agg({
+    # Aggregate returns by FY_Year and collect months used
+    financial_year_data = df.groupby('FY_Year').agg({
         'Realized P&L Pct.': 'mean',
         'Month-Year': lambda x: ', '.join(sorted(x.unique()))
     }).reset_index()
 
-    yearly_data.columns = ['Year', f'{year_type} Yearly Return (%)', f'{year_type} Months Used']
+    financial_year_data.columns = ['Financial Year', 'Financial Yearly Return (%)', 'Financial Year Months Used']
     
-    return yearly_data
+    return financial_year_data
 
-def summarize_returns(df):
-    st.title("Yearly Returns Summary")
+def summarize_financial_year_returns(df):
+    st.title("Financial Year Returns Summary")
 
-    # Calculate returns by Calendar Year
-    calendar_year_returns = calculate_returns_by_year(df, 'Calendar')
-    
     # Calculate returns by Financial Year
-    financial_year_returns = calculate_returns_by_year(df, 'Financial')
+    financial_year_returns = calculate_financial_year_returns(df)
     
-    # Merge the results into one table, including the months used
-    summary_table = pd.merge(calendar_year_returns, financial_year_returns, on='Year', how='outer')
-
-    # Ensure that the months used are displayed properly
-    summary_table = summary_table[['Year', 'Calendar Yearly Return (%)', 'Calendar Months Used', 'Financial Yearly Return (%)', 'Financial Months Used']]
-
     # Display the table
-    st.write(summary_table)
+    st.write(financial_year_returns)
 
 def main():
-    st.title("Upload Excel File to Summarize Returns by Year")
+    st.title("Upload Excel File to Summarize Returns by Financial Year")
     
     # File uploader for the main data
     uploaded_file = st.file_uploader("Choose an Excel file for main data", type=["xlsx", "xls"])
@@ -77,8 +68,8 @@ def main():
             df.columns = df.columns.str.strip()
             df.columns.name = None
 
-            # Summarize returns by Calendar and Financial Years
-            summarize_returns(df)
+            # Summarize returns by Financial Year
+            summarize_financial_year_returns(df)
         
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
