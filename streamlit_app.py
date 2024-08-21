@@ -29,16 +29,22 @@ def main():
             # Read the uploaded Excel file, skip the first 36 rows, and use row 37 as the header
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36)
             
-            # Add the "Month" column based on the "Symbol" column
-            df['Month'] = df['Symbol'].apply(extract_month)
+            # Debugging: Display the column names to ensure 'Symbol' is present
+            st.write("Columns in the uploaded file:", df.columns.tolist())
             
-            # Reorder columns to place "Month" before "Symbol"
-            columns = ['Month'] + [col for col in df.columns if col != 'Month']
-            df = df[columns]
-            
-            # Display the dataframe
-            st.write(df)
-
+            if 'Symbol' in df.columns:
+                # Add the "Month" column based on the "Symbol" column
+                df['Month'] = df['Symbol'].apply(extract_month)
+                
+                # Reorder columns to place "Month" before "Symbol"
+                columns = ['Month'] + [col for col in df.columns if col != 'Month']
+                df = df[columns]
+                
+                # Display the dataframe
+                st.write(df)
+            else:
+                st.error("The 'Symbol' column was not found in the uploaded file.")
+                
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
 
