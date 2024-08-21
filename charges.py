@@ -6,18 +6,18 @@ def extract_charges(uploaded_file):
     # Load the data, ensuring the Charges row is included
     df_full = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
 
-    # Diagnostic: Display the relevant section of the DataFrame
-    st.write("Relevant DataFrame section:")
-    st.write(df_full.head(20))  # Display the first 20 rows for verification
+    # Hiding Display - Only for Debug by Ash
+    # st.write("Relevant DataFrame section:")
+    # st.write(df_full.head(20))  # Display the first 20 rows for verification
     
     # Attempt to locate the row where "Charges" is located
     charges_row = df_full[df_full.isin(['Charges']).any(axis=1)]
     
     # Check if the row was found and extract the value
     if not charges_row.empty:
-        # Log the first row only for verification
-        st.write("Charges row found (showing the first row only):")
-        st.write(charges_row.head(1))  # Display only the first row
+        # Hiding Display - Only for Debug by Ash
+        # st.write("Charges row found (showing the first row only):")
+        # st.write(charges_row.head(1))  # Display only the first row
         
         # Assuming the value is in the third column
         charges_value = charges_row.iloc[0, 2]  # Adjust if the charges value is in a different column
@@ -42,11 +42,15 @@ def main():
             
             # Extract and display the charges using the uploaded file
             charges_value = extract_charges(uploaded_file)
+            
+            # Display the dataframe
+            st.write(df)
+            
             if charges_value is not None:
                 # Log the extracted charges value
                 st.write(f"Extracted Charges value: {charges_value}")
                 
-                # Display the charges in a table
+                # Display the charges in a table below the Streamlit app dataframe
                 charges_table = pd.DataFrame({'Charges': [charges_value]})
                 st.write("Charges Table:")
                 st.write(charges_table)
