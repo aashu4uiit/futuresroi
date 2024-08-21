@@ -34,8 +34,11 @@ def plot_monthly_returns(df):
     # Aggregate returns by Month-Year
     monthly_returns = df.groupby('Month-Year')['Realized P&L Pct.'].mean()
 
+    # Filter out months with 0 values
+    monthly_returns = monthly_returns[monthly_returns != 0]
+
     # Reindex the DataFrame to ensure the correct order of Month-Year
-    monthly_returns = monthly_returns.reindex(ordered_month_year)
+    monthly_returns = monthly_returns.reindex(ordered_month_year).dropna()
 
     # Plot the bar chart
     plt.figure(figsize=(12, 6))
