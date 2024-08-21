@@ -3,6 +3,7 @@ import pandas as pd
 import openpyxl
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
+from charges_script import extract_charges  # Import the extract_charges function
 
 def extract_month(symbol):
     month_mapping = {
@@ -83,6 +84,13 @@ def main():
             
             # Summarize returns by Calendar and Financial Years
             summarize_returns(df)
+
+            # Extract and display charges separately
+            charges_value = extract_charges(df)
+            if charges_value is not None:
+                charges_table = pd.DataFrame({'Charges': [charges_value]})
+                st.write("Charges Table:")
+                st.write(charges_table)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
