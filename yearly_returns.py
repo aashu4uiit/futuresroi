@@ -31,6 +31,10 @@ def calculate_financial_year_returns(df):
     df['FY_Year'] = df.apply(lambda x: str(int(x['Year']) - 1) if x['Month'] in [
         'January', 'February', 'March'] else x['Year'], axis=1)
 
+    # Ensure only months April to March are included for each financial year
+    df = df[df.apply(lambda x: (x['Month'] in ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] and x['FY_Year'] == x['Year']) or
+                     (x['Month'] in ['January', 'February', 'March'] and str(int(x['FY_Year']) + 1) == x['Year']), axis=1)]
+
     # Format Month-Year
     df['Month-Year'] = df.apply(lambda x: format_month_year(x['Month'], x['FY_Year']), axis=1)
 
