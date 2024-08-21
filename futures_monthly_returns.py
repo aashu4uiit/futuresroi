@@ -1,5 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
 
 def extract_month_year(symbol):
     month_mapping = {
@@ -15,6 +16,11 @@ def extract_month_year(symbol):
 
 def plot_futures_monthly_returns(df):
     st.header("Futures Monthly Percentage Returns")
+    
+    # Calculate geometric mean return
+    monthly_returns = df.groupby('Month-Year')['Realized P&L Pct.'].mean()
+    monthly_returns = monthly_returns[monthly_returns != 0]  # Filter out 0 values
+    gmean_return = np.prod(monthly_returns + 1) ** (1 / len(monthly_returns)) - 1
     
     # Filter the DataFrame to include only Futures transactions (Symbol ends with 'FUT')
     df = df[df['Symbol'].str.endswith('FUT')]
@@ -51,6 +57,9 @@ def plot_futures_monthly_returns(df):
 
     # Add the overall return as a new entry
     monthly_returns['Overall'] = overall_return
+
+     # Add geometric mean return as a new entry
+    monthly_returns['Overall (Geometric Mean)'] = gmean_return * 100  # Convert to percentage
 
     # Plot the bar chart
     plt.figure(figsize=(12, 6))
