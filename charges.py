@@ -1,85 +1,59 @@
-import pandas as pd
 import streamlit as st
-import numpy as np
-from futures_monthly_returns import plot_futures_monthly_returns
-from options_monthly_returns import plot_options_monthly_returns
-from charges import extract_charges  # Import the extract_charges function
+import pandas as pd
+import openpyxl
 
-def geometric_mean(returns):
-    # Convert percentage returns to decimal form
-    returns = returns / 100 + 1
-    # Calculate geometric mean
-    gmr = np.prod(returns) ** (1 / len(returns)) - 1
-    # Convert back to percentage form
-    return gmr * 100
+def extract_charges(uploaded_file):
+    # Load the data, ensuring the Charges row is included
+    df_full = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
 
-def calculate_total_returns(futures_df, options_df, charges_value):
-    # Calculate geometric mean for futures
-    futures_gmr = geometric_mean(futures_df['Realized P&L Pct.'])
-
-    # Calculate geometric mean for options
-    options_gmr = geometric_mean(options_df['Realized P&L Pct.'])
-
-    # Calculate combined geometric mean
-    combined_returns = pd.concat([futures_df['Realized P&L Pct.'], options_df['Realized P&L Pct.']])
-    total_geometric_mean = geometric_mean(combined_returns)
-
-    # Calculate net returns after subtracting charges (assuming charges are applied proportionally)
-    net_total_geometric_mean = total_geometric_mean - (charges_value / combined_returns.sum() * 100)
-
-    # Create a summary DataFrame
-    summary_df = pd.DataFrame({
-        'Category': ['Futures', 'Options', 'Total', 'Net Total (after Charges)'],
-        'Geometric Mean (%)': [futures_gmr, options_gmr, total_geometric_mean, net_total_geometric_mean]
-    })
+    # Hiding Display - Only for Debug by Ash
+    # st.write("Relevant DataFrame section:")
+    # st.write(df_full.head(20))  # Display the first 20 rows for verification
     
-    return summary_df
-
-def summarize_total_returns(futures_df, options_df, charges_value):
-    st.title("Total Returns Summary")
-
-    # Calculate and display the total returns (geometric mean only)
-    total_returns_df = calculate_total_returns(futures_df, options_df, charges_value)
-    st.write(total_returns_df)
+    # Attempt to locate the row where "Charges" is located
+    charges_row = df_full[df_full.isin(['Charges']).any(axis=1)]
     
-    # Plot individual and combined returns
-    st.subheader("Returns Breakdown")
-    st.bar_chart(total_returns_df.set_index('Category')['Geometric Mean (%)'])
+    # Check if the row was found and extract the value
+    if not charges_row.empty:
+        # Hiding Display - Only for Debug by Ash
+        # st.write("Charges row found (showing the first row only):")
+        # st.write(charges_row.head(1))  # Display only the first row
+        
+        # Assuming the value is in the third column
+        charges_value = charges_row.iloc[0, 2]  # Adjust if the charges value is in a different column
+        return charges_value
+    else:
+        st.error("Charges row not found. Verify that 'Charges' is spelled correctly and present in the data.")
+        return None
 
 def main():
-    st.title("Upload Excel File to Calculate Total Returns")
-    
+    st.title("Charges Extractor")
+    st.write("This app allows you to upload an Excel file and extract the Charges value.")
+
     # File uploader for the main data
-    uploaded_file = st.file_uploader("Choose an Excel file for data", type=["xlsx", "xls"])
+    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
 
     if uploaded_file is not None:
         try:
-            # Extract and display charges using the uploaded file
+            # Display the raw data for verification
+            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
+            st.write("Data preview:")
+            st.write(df.head(20))  # Display the first 20 rows to inspect
+            
+            # Extract and display the charges using the uploaded file
             charges_value = extract_charges(uploaded_file)
+            
+            # Display the dataframe
+            st.write(df)
+            
             if charges_value is not None:
-                st.write(f"Charges: {charges_value}")
-
-            # Read the uploaded Excel file
-            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
-            
-            # Rename columns using the first row as headers
-            df.columns = df.iloc[0]  # Set the first row as the header
-            df = df[1:]  # Remove the first row from the dataframe
-            df.columns = df.columns.str.strip()
-            df.columns.name = None
-            
-            # Separate futures and options data
-            futures_df = df[df['Symbol'].str.endswith('FUT')]
-            options_df = df[df['Symbol'].str.endswith(('CE', 'PE'))]
-            
-            # Plot futures monthly returns
-            plot_futures_monthly_returns(futures_df)
-            
-            # Plot options monthly returns
-            plot_options_monthly_returns(options_df)
-            
-            # Summarize total returns (geometric mean only), including net returns after charges
-            summarize_total_returns(futures_df, options_df, charges_value)
+                # Log the extracted charges value
+                st.write(f"Extracted Charges value: {charges_value}")
+                
+                # Display the charges in a table below the Streamlit app dataframe
+                charges_table = pd.DataFrame({'Charges': [charges_value]})
+                st.write("Charges Table:")
+                st.write(charges_table)
         
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
