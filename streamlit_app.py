@@ -20,7 +20,10 @@ def main():
 
     if uploaded_file is not None:
         # Read the uploaded Excel file, skip the first 36 rows, and use row 37 as the header
-        df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36)
+        df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
+        
+        # Drop any columns that are completely unnamed
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
 
         # Display the dataframe
         st.write(df)
@@ -32,14 +35,3 @@ def main():
     # Manual ROI calculation section
     st.header("Manual ROI Calculation")
     beginning_value = st.number_input("Enter the Beginning Value (Buy Value):", min_value=0.0, format="%.2f")
-    ending_value = st.number_input("Enter the Ending Value (Sell Value):", min_value=0.0, format="%.2f")
-
-    if st.button("Calculate ROI"):
-        if beginning_value > 0:
-            roi = calculate_roi(beginning_value, ending_value)
-            st.success(f"The ROI is {roi:.2f}%")
-        else:
-            st.error("Beginning Value must be greater than 0 to calculate ROI.")
-
-if __name__ == "__main__":
-    main()
