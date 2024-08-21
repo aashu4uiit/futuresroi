@@ -44,15 +44,25 @@ def summarize_returns(df):
 
     # Adding Charges to Table
     try:
-        # Attempt to extract the charges value from row 15 (index 14) and the correct column name
-        charges_value = df.iloc[14].dropna().values[0]  # Assuming the first non-null value in the row is the charge
-        charges_row = pd.DataFrame({'Year': ['Charges'], 'Calendar Yearly Return (%)': [charges_value], 'Financial Yearly Return (%)': [charges_value]})
+        # Identify the row where "Charges" is located
+        charges_row = df[df[1] == 'Charges']
         
-        # Append the charges row to the summary table
-        summary_table = summary_table.append(charges_row, ignore_index=True)
+        # Extract the value associated with "Charges"
+        if not charges_row.empty:
+            charges_value = charges_row.iloc[0, 2]  # Assuming the value is in the third column
+            charges_row_data = pd.DataFrame({
+                'Year': ['Charges'], 
+                f'{calendar_year_returns.columns[1]}': [charges_value], 
+                f'{financial_year_returns.columns[1]}': [charges_value]
+            })
+            
+            # Append the charges row to the summary table
+            summary_table = summary_table.append(charges_row_data, ignore_index=True)
+        else:
+            st.error("Charges row not found.")
     
-    except IndexError:
-        st.error("Charges row or value could not be found.")
+    except Exception as e:
+        st.error(f"An error occurred while processing the charges: {e}")
     
     # Display the table
     st.write(summary_table)
@@ -66,8 +76,8 @@ def main():
 
     if uploaded_file is not None:
         try:
-            # Read the uploaded Excel file, skip the first 36 rows, and correctly interpret the header
-            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
+            # Read the uploaded Excel file, skip the first 13 rows
+            df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=0)
             
             # Rename columns using the first row as headers
             df.columns = df.iloc[0]  # Set the first row as the header
@@ -93,7 +103,7 @@ def main():
             # Plot Options Monthly Returns
             plot_options_monthly_returns(df)
             
-            # Summarize returns by Calendar and Financial Years
+            # Summarize returns by Calendar and Financial Years, including charges
             summarize_returns(df)
 
         except Exception as e:
