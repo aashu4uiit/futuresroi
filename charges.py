@@ -3,12 +3,16 @@ import pandas as pd
 import openpyxl
 
 def extract_charges(df):
-    # Diagnostic: Display the entire DataFrame to understand its structure
-    st.write("Full DataFrame:")
-    st.write(df)
+    # Since the main script skips 36 rows, we need to adjust for this.
+    # Reload the data, skipping fewer rows to include the Charges row.
+    df_full = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
+
+    # Diagnostic: Display the relevant section of the DataFrame
+    st.write("Relevant DataFrame section:")
+    st.write(df_full.head(20))  # Display the first 20 rows for verification
     
     # Attempt to locate the row where "Charges" is located
-    charges_row = df[df.isin(['Charges']).any(axis=1)]
+    charges_row = df_full[df_full.isin(['Charges']).any(axis=1)]
     
     # Check if the row was found and extract the value
     if not charges_row.empty:
