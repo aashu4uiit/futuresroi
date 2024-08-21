@@ -19,6 +19,9 @@ def plot_monthly_returns(df):
     # Extract month and year from the Symbol column
     df['Month-Year'] = df['Symbol'].apply(extract_month_year)
     
+    # Filter the DataFrame to only include rows with Realized P&L values
+    df = df[df['Realized P&L Pct.'].notnull()]
+
     # Define the correct order of months starting from April
     month_order = [
         'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 
