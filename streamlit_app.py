@@ -45,14 +45,21 @@ def main():
             # Convert the 'Realized P&L Pct.' column to numeric
             df['Realized P&L Pct.'] = pd.to_numeric(df['Realized P&L Pct.'], errors='coerce')
 
-            # Plot the percentage returns as a bar chart
+            # Plot the percentage returns as a bar chart with the actual return number on the bars
             st.header("Percentage Returns")
             plt.figure(figsize=(10, 6))
-            plt.bar(df['Symbol'], df['Realized P&L Pct.'], color='skyblue')
+            bars = plt.bar(df['Symbol'], df['Realized P&L Pct.'], color='skyblue')
             plt.xlabel('Symbol')
             plt.ylabel('Realized P&L Pct. (%)')
             plt.title('Realized P&L Percentage by Symbol')
             plt.xticks(rotation=90)
+            
+            # Add the return numbers on top of the bars
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2, yval, f'{yval:.2f}%', ha='center', va='bottom')
+
+            # Display the plot in Streamlit
             st.pyplot(plt)
 
         except Exception as e:
