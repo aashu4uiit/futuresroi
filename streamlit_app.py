@@ -4,6 +4,7 @@ import openpyxl
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
 from charges import extract_charges  # Import the extract_charges function
+from yearly_returns import summarize_returns  # Import the summarize_returns function
 
 def extract_month(symbol):
     month_mapping = {
