@@ -24,12 +24,12 @@ def calculate_total_returns(futures_df, options_df, charges_value):
     combined_returns = pd.concat([futures_df['Realized P&L Pct.'], options_df['Realized P&L Pct.']])
     total_geometric_mean = geometric_mean(combined_returns)
 
-    # Convert charges to a percentage of the total notional amount for correct adjustment
-    total_notional = futures_df['Notional Amount'].sum() + options_df['Notional Amount'].sum()
-    charges_pct = (charges_value / total_notional) * 100
+    # Assuming charges_value is in absolute terms, we can calculate its impact as follows:
+    total_notional_amount = futures_df['Amount'].sum() + options_df['Amount'].sum()
+    charges_percentage_impact = (charges_value / total_notional_amount) * 100
 
-    # Calculate net returns after subtracting charges percentage
-    net_total_geometric_mean = total_geometric_mean - charges_pct
+    # Adjust the total geometric mean by the charges
+    net_total_geometric_mean = total_geometric_mean - charges_percentage_impact
 
     # Create a summary DataFrame
     summary_df = pd.DataFrame({
@@ -60,8 +60,7 @@ def main():
         try:
             # Extract and display charges using the uploaded file
             charges_value = extract_charges(uploaded_file)
-            if charges_value is not None:
-                st.write(f"Charges: {charges_value}")
+            st.write(f"Charges: {charges_value}")  # Log the extracted charges value
 
             # Read the uploaded Excel file
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
