@@ -46,12 +46,18 @@ def plot_futures_monthly_returns(df):
     # Reindex the DataFrame to ensure the correct order of Month-Year
     monthly_returns = monthly_returns.reindex(ordered_month_year).dropna()
 
+    # Calculate the overall return
+    overall_return = monthly_returns.mean()
+
+    # Add the overall return as a new entry
+    monthly_returns['Overall'] = overall_return
+
     # Plot the bar chart
     plt.figure(figsize=(12, 6))
     bars = plt.bar(monthly_returns.index, monthly_returns.values, color='skyblue')
     plt.xlabel('Month-Year')
     plt.ylabel('Average Realized P&L Pct. (%)')
-    plt.title('Futures Average Monthly Realized P&L Percentage')
+    plt.title('Futures Average Monthly Realized P&L Percentage with Overall Return')
     plt.xticks(rotation=45)
     
     # Add the return numbers on top of the bars
@@ -61,3 +67,4 @@ def plot_futures_monthly_returns(df):
 
     # Display the plot in Streamlit
     st.pyplot(plt)
+
