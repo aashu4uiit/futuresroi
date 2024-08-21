@@ -1,6 +1,13 @@
 import streamlit as st
 import pandas as pd
 
+# Ensure that the openpyxl package is installed
+try:
+    import openpyxl
+except ImportError:
+    st.error("Missing optional dependency 'openpyxl'. Please install it using 'pip install openpyxl'.")
+    st.stop()  # Stop the script execution if openpyxl is not available
+
 def calculate_roi(beginning_value, ending_value):
     return ((ending_value - beginning_value) / beginning_value) * 100
 
