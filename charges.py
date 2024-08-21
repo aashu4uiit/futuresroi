@@ -35,11 +35,11 @@ def main():
     if uploaded_file is not None:
         try:
             # Display the raw data for verification
-            st.write("Data preview:")
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=13, header=None)
+            st.write("Data preview:")
             st.write(df.head(20))  # Display the first 20 rows to inspect
             
-            # Extract and display the charges
+            # Extract and display the charges using the uploaded file
             charges_value = extract_charges(uploaded_file)
             if charges_value is not None:
                 # Log the extracted charges value
