@@ -3,7 +3,7 @@ import pandas as pd
 import openpyxl
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
-from charges_script import extract_charges  # Import the extract_charges function
+from charges import extract_charges  # Import the extract_charges function
 
 def extract_month(symbol):
     month_mapping = {
