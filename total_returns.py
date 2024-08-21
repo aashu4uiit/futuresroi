@@ -11,10 +11,6 @@ def geometric_mean(returns):
     # Convert back to percentage form
     return gmr * 100
 
-# Function to calculate total returns
-def calculate_total_returns(df, charges_value):
-    st.write("Calculating total returns...")
-
     # Filter futures and options data
     futures_df = df[df['Symbol'].str.endswith('FUT')]
     options_df = df[df['Symbol'].str.endswith(('CE', 'PE'))]
