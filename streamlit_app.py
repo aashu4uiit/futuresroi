@@ -48,17 +48,25 @@ def summarize_returns(df):
 def extract_and_display_charges(df):
     st.title("Charges Summary")
     
-    # Identify the row where "Charges" is located
-    charges_row = df[df[1] == 'Charges']
+    try:
+        # Ensure there is a second column to check for "Charges"
+        if df.shape[1] > 1:
+            # Identify the row where "Charges" is located
+            charges_row = df[df.iloc[:, 1] == 'Charges']  # Checking the second column
+
+            # Extract the value associated with "Charges"
+            if not charges_row.empty:
+                charges_value = charges_row.iloc[0, 2]  # Assuming the value is in the third column
+                charges_table = pd.DataFrame({'Charges': [charges_value]})
+                st.write("Charges Table:")
+                st.write(charges_table)
+            else:
+                st.error("Charges row not found.")
+        else:
+            st.error("The DataFrame does not contain enough columns to check for 'Charges'.")
     
-    # Extract the value associated with "Charges"
-    if not charges_row.empty:
-        charges_value = charges_row.iloc[0, 2]  # Assuming the value is in the third column
-        charges_table = pd.DataFrame({'Charges': [charges_value]})
-        st.write("Charges Table:")
-        st.write(charges_table)
-    else:
-        st.error("Charges row not found.")
+    except Exception as e:
+        st.error(f"An error occurred while processing the charges: {e}")
 
 def main():
     st.title("ROI Calculator & File Uploader")
