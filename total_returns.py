@@ -13,23 +13,19 @@ def geometric_mean(returns):
     return gmr * 100
 
 def calculate_total_returns(futures_df, options_df):
-    # Calculate futures returns
-    futures_returns = futures_df['Realized P&L Pct.'].mean()  # Arithmetic Mean
-    futures_gmr = geometric_mean(futures_df['Realized P&L Pct.'])  # Geometric Mean
+    # Calculate geometric mean for futures
+    futures_gmr = geometric_mean(futures_df['Realized P&L Pct.'])
 
-    # Calculate options returns
-    options_returns = options_df['Realized P&L Pct.'].mean()  # Arithmetic Mean
-    options_gmr = geometric_mean(options_df['Realized P&L Pct.'])  # Geometric Mean
+    # Calculate geometric mean for options
+    options_gmr = geometric_mean(options_df['Realized P&L Pct.'])
 
-    # Calculate total returns (combined arithmetic mean and geometric mean)
-    total_arithmetic_mean = (futures_returns + options_returns) / 2
+    # Calculate combined geometric mean
     combined_returns = pd.concat([futures_df['Realized P&L Pct.'], options_df['Realized P&L Pct.']])
     total_geometric_mean = geometric_mean(combined_returns)
 
     # Create a summary DataFrame
     summary_df = pd.DataFrame({
         'Category': ['Futures', 'Options', 'Total'],
-        'Arithmetic Mean (%)': [futures_returns, options_returns, total_arithmetic_mean],
         'Geometric Mean (%)': [futures_gmr, options_gmr, total_geometric_mean]
     })
     
@@ -38,13 +34,13 @@ def calculate_total_returns(futures_df, options_df):
 def summarize_total_returns(futures_df, options_df):
     st.title("Total Returns Summary")
 
-    # Calculate and display the total returns
+    # Calculate and display the total returns (geometric mean only)
     total_returns_df = calculate_total_returns(futures_df, options_df)
     st.write(total_returns_df)
     
     # Plot individual and combined returns
     st.subheader("Returns Breakdown")
-    st.bar_chart(total_returns_df.set_index('Category')['Arithmetic Mean (%)'])
+    st.bar_chart(total_returns_df.set_index('Category')['Geometric Mean (%)'])
 
 def main():
     st.title("Upload Excel File to Calculate Total Returns")
@@ -73,7 +69,7 @@ def main():
             # Plot options monthly returns
             plot_options_monthly_returns(options_df)
             
-            # Summarize total returns
+            # Summarize total returns (geometric mean only)
             summarize_total_returns(futures_df, options_df)
         
         except Exception as e:
