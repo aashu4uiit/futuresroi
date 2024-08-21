@@ -19,6 +19,10 @@ def format_month_year(month, year):
     year_abbr = year[-2:]
     return f"{month_abbr}-{year_abbr}"
 
+def format_financial_year(fy_year):
+    next_year = str(int(fy_year) + 1)
+    return f"FY{fy_year}-{next_year[-2:]}"  # Format as FY2023-24
+
 def calculate_financial_year_returns(df):
     df['Month'] = df['Symbol'].apply(extract_month)
     df['Year'] = df['Symbol'].apply(extract_year)
@@ -36,7 +40,13 @@ def calculate_financial_year_returns(df):
         'Month-Year': lambda x: ', '.join(sorted(x.unique()))
     }).reset_index()
 
-    financial_year_data.columns = ['Financial Year', 'Financial Yearly Return (%)', 'Financial Year Months Used']
+    # Format the financial year as FY2023-24
+    financial_year_data['Financial Year'] = financial_year_data['FY_Year'].apply(format_financial_year)
+    
+    financial_year_data.columns = ['FY_Year', 'Financial Yearly Return (%)', 'Financial Year Months Used', 'Financial Year']
+
+    # Reorder columns to place Financial Year in front
+    financial_year_data = financial_year_data[['Financial Year', 'Financial Yearly Return (%)', 'Financial Year Months Used']]
     
     return financial_year_data
 
