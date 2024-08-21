@@ -63,7 +63,7 @@ def main():
             plot_options_monthly_returns(df)
             
             # Summarize returns by Calendar and Financial Years
-            summarize_returns(df)
+            summarize_financial_year_returns(df)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
