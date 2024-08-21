@@ -4,7 +4,7 @@ import openpyxl
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
 from charges import extract_charges  # Import the extract_charges function
-from total_returns import summarize_total_returns  # Import the summarize_total_returns function
+from total_returns import calculate_total_returns  # Import the calculate_total_returns function
 
 def extract_month(symbol):
     month_mapping = {
@@ -31,6 +31,9 @@ def main():
                 charges_table = pd.DataFrame({'Charges': [charges_value]})
                 st.write("Charges Table:")
                 st.write(charges_table)
+            else:
+                st.error("Charges value could not be found or is invalid.")
+                return
 
             # Read the uploaded Excel file, skip the first 36 rows, and correctly interpret the header
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36, header=0)
@@ -66,8 +69,10 @@ def main():
             # Plot Options Monthly Returns
             plot_options_monthly_returns(options_df)
             
-            # Summarize total returns
-            summarize_total_returns(futures_df, options_df)
+            # Calculate and summarize total returns
+            total_returns_df = calculate_total_returns(df, charges_value)
+            st.write("Total Returns Summary:")
+            st.write(total_returns_df)
 
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
