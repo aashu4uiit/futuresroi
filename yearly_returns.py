@@ -29,7 +29,7 @@ def calculate_returns_by_year(df, year_type='Calendar'):
         'Month': lambda x: ', '.join(sorted(x.unique()))
     }).reset_index()
 
-    yearly_data.columns = ['Year', f'{year_type} Yearly Return (%)', 'Months Used']
+    yearly_data.columns = ['Year', f'{year_type} Yearly Return (%)', f'{year_type} Months Used']
     
     return yearly_data
 
@@ -43,7 +43,10 @@ def summarize_returns(df):
     financial_year_returns = calculate_returns_by_year(df, 'Financial')
     
     # Merge the results into one table
-    summary_table = pd.merge(calendar_year_returns, financial_year_returns, on=['Year', 'Months Used'], how='outer')
+    summary_table = pd.merge(calendar_year_returns, financial_year_returns, on='Year', how='outer')
+
+    # Reorder columns to have a clear structure
+    summary_table = summary_table[['Year', 'Calendar Yearly Return (%)', 'Calendar Months Used', 'Financial Yearly Return (%)', 'Financial Months Used']]
 
     # Display the table
     st.write(summary_table)
