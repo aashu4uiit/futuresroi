@@ -14,6 +14,8 @@ def geometric_mean(returns):
     return gmr * 100
 
 def calculate_total_returns(futures_df, options_df, charges_value):
+    st.write("Calculating total returns...")  # Debug statement
+
     # Calculate geometric mean for futures
     futures_gmr = geometric_mean(futures_df['Realized P&L Pct.'])
 
@@ -41,6 +43,8 @@ def calculate_total_returns(futures_df, options_df, charges_value):
 
 def summarize_total_returns(futures_df, options_df, charges_value):
     st.title("Total Returns Summary")
+    
+    st.write(f"Using charges value: {charges_value}")  # Debug statement to check charges
 
     # Calculate and display the total returns (geometric mean only)
     total_returns_df = calculate_total_returns(futures_df, options_df, charges_value)
@@ -60,6 +64,10 @@ def main():
         try:
             # Extract and display charges using the uploaded file
             charges_value = extract_charges(uploaded_file)
+            if charges_value is None:
+                st.error("Charges value could not be determined. Please check the data.")
+                return  # Exit if charges value is not found
+            
             st.write(f"Charges: {charges_value}")  # Log the extracted charges value
 
             # Read the uploaded Excel file
@@ -81,12 +89,9 @@ def main():
             # Plot options monthly returns
             plot_options_monthly_returns(options_df)
             
-            # Check if charges_value is None or not before calling the summarize function
-            if charges_value is not None:
-                summarize_total_returns(futures_df, options_df, charges_value)
-            else:
-                st.error("Charges value is missing. Please check the data.")
-
+            # Summarize total returns (geometric mean only), including net returns after charges
+            summarize_total_returns(futures_df, options_df, charges_value)
+        
         except Exception as e:
             st.error(f"An error occurred while processing the file: {e}")
 
