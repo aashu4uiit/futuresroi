@@ -13,8 +13,11 @@ def extract_month_year(symbol):
     month = month_mapping.get(month_code.upper(), 'Unknown')
     return f"{month[:3]}-{year}"
 
-def plot_monthly_returns(df):
-    st.header("Monthly Percentage Returns")
+def plot_futures_monthly_returns(df):
+    st.header("Futures Monthly Percentage Returns")
+    
+    # Filter the DataFrame to include only Futures transactions (Symbol ends with 'FUT')
+    df = df[df['Symbol'].str.endswith('FUT')]
     
     # Extract month and year from the Symbol column
     df['Month-Year'] = df['Symbol'].apply(extract_month_year)
@@ -48,7 +51,7 @@ def plot_monthly_returns(df):
     bars = plt.bar(monthly_returns.index, monthly_returns.values, color='skyblue')
     plt.xlabel('Month-Year')
     plt.ylabel('Average Realized P&L Pct. (%)')
-    plt.title('Average Monthly Realized P&L Percentage')
+    plt.title('Futures Average Monthly Realized P&L Percentage')
     plt.xticks(rotation=45)
     
     # Add the return numbers on top of the bars
