@@ -24,8 +24,12 @@ def calculate_total_returns(futures_df, options_df, charges_value):
     combined_returns = pd.concat([futures_df['Realized P&L Pct.'], options_df['Realized P&L Pct.']])
     total_geometric_mean = geometric_mean(combined_returns)
 
-    # Calculate net returns after subtracting charges (assuming charges are applied proportionally)
-    net_total_geometric_mean = total_geometric_mean - (charges_value / combined_returns.sum() * 100)
+    # Convert charges to a percentage of the total notional amount for correct adjustment
+    total_notional = futures_df['Notional Amount'].sum() + options_df['Notional Amount'].sum()
+    charges_pct = (charges_value / total_notional) * 100
+
+    # Calculate net returns after subtracting charges percentage
+    net_total_geometric_mean = total_geometric_mean - charges_pct
 
     # Create a summary DataFrame
     summary_df = pd.DataFrame({
