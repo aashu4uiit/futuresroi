@@ -19,9 +19,9 @@ def main():
     uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
 
     if uploaded_file is not None:
-        # Read the uploaded Excel file
-        df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl')
-        
+        # Read the uploaded Excel file, skip the first 36 rows, and use row 37 as the header
+        df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36)
+
         # Display the dataframe
         st.write(df)
 
