@@ -5,6 +5,18 @@ import openpyxl
 def calculate_roi(beginning_value, ending_value):
     return ((ending_value - beginning_value) / beginning_value) * 100
 
+def extract_month(symbol):
+    # Mapping from the three-character month code to the full month name
+    month_mapping = {
+        'JAN': 'January', 'FEB': 'February', 'MAR': 'March',
+        'APR': 'April', 'MAY': 'May', 'JUN': 'June',
+        'JUL': 'July', 'AUG': 'August', 'SEP': 'September',
+        'OCT': 'October', 'NOV': 'November', 'DEC': 'December'
+    }
+    # Extract the month code from characters 8, 9, 10 of the symbol
+    month_code = symbol[7:10]
+    return month_mapping.get(month_code.upper(), 'Unknown')
+
 def main():
     st.title("ROI Calculator & File Uploader")
     st.write("This app allows you to upload an Excel file or manually input values to calculate ROI.")
@@ -16,6 +28,13 @@ def main():
         try:
             # Read the uploaded Excel file, skip the first 36 rows, and use row 37 as the header
             df = pd.read_excel(uploaded_file, sheet_name='F&O', engine='openpyxl', skiprows=36)
+            
+            # Add the "Month" column based on the "Symbol" column
+            df['Month'] = df['Symbol'].apply(extract_month)
+            
+            # Reorder columns to place "Month" before "Symbol"
+            columns = ['Month'] + [col for col in df.columns if col != 'Month']
+            df = df[columns]
             
             # Display the dataframe
             st.write(df)
