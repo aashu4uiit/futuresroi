@@ -1,10 +1,30 @@
 import streamlit as st
 import pandas as pd
 import openpyxl
+import yfinance as yf
+from stage2 import stage2_analysis  # Import the stage2 functionality
 from futures_monthly_returns import plot_futures_monthly_returns
 from options_monthly_returns import plot_options_monthly_returns
 from charges import extract_charges  # Import the extract_charges function
 from total_returns import calculate_total_returns  # Import the calculate_total_returns function
+
+# Sidebar navigation
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to", ["Home", "Stage 2 Stocks", "Other Features"])
+
+if page == "Home":
+    # Your existing home page code here
+    st.title("Welcome to Portfolio Check")
+    st.write("Use this tool to analyze your portfolio.")
+
+elif page == "Stage 2 Stocks":
+    st.title("Stage 2 Stocks Analysis")
+    st.write("Analyze your portfolio for stocks meeting Stage 2 criteria.")
+
+    # Stage 2 analysis functionality
+    stage2_analysis()
+
+else:
 
 def extract_month(symbol):
     month_mapping = {
