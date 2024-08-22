@@ -17,7 +17,7 @@ def extract_month(symbol):
     return month_mapping.get(month_code.upper(), 'Unknown')
 
 def main():
-    st.title("ROI Calculator & File Uploader")
+    st.title("Futures & Options Returns Calculator")
     st.write("This app allows you to upload a single Excel file to view and analyze percentage returns for futures, options, and combined totals.")
 
     # File uploader for the data
