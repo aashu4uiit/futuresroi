@@ -3,3 +3,4 @@ openpyxl
 streamlit
 matplotlib
 pygwalker
+yfinance
