@@ -10,7 +10,7 @@ from total_returns import calculate_total_returns  # Import the calculate_total_
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Stage 2 Stocks", "Other Features"])
+page = st.sidebar.radio("Go to", ["Home", "Stage 2 Stocks", "F&O Returns"])
 
 if page == "Home":
     # Your existing home page code here
@@ -21,8 +21,10 @@ elif page == "Stage 2 Stocks":
     st.title("Stage 2 Stocks Analysis")
     st.write("Analyze your portfolio for stocks meeting Stage 2 criteria.")
 
-    # Stage 2 analysis functionality
-    stage2_analysis()
+    # File uploader for Stage 2 analysis
+    uploaded_file = st.file_uploader("Upload your portfolio file", type=["csv", "xlsx"])
+    if uploaded_file is not None:
+        stage2_analysis(uploaded_file)
 
 else:
     def extract_month(symbol):
