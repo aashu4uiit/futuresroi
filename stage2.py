@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 
+def stage2_analysis(uploaded_file):
+    
 # Function to calculate simple moving averages
 def sma(data, window):
     return data.rolling(window=window).mean()
