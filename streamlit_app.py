@@ -22,7 +22,7 @@ elif page == "Stage 2 Stocks":
     st.write("Analyze your portfolio for stocks meeting Stage 2 criteria.")
 
     # File uploader for Stage 2 analysis
-    uploaded_file = st.file_uploader("Upload your portfolio file", type=["csv", "xlsx"])
+    uploaded_file = st.file_uploader("Upload your portfolio file", type=[ "xlsx"])
     if uploaded_file is not None:
         stage2_analysis(uploaded_file)
 
